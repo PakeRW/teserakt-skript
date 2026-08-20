@@ -1,0 +1,4 @@
+on console log:
+    set {_message} to the logged message
+    if {_message} contains "Finished":
+        broadcast "Pingpong!"

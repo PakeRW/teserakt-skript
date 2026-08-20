@@ -1,0 +1,440 @@
+#
+# /shop – sklep BedWars (v3) – 6 kategorii
+# Waluta: Fe (Żelazo) | Au (Złoto) | Di (Diament) | Em (Szmaragd)
+#
+
+# ═══════════════════════════════════════════════════════════════════
+#  FUNKCJE POMOCNICZE
+# ═══════════════════════════════════════════════════════════════════
+
+function make_btn(mat: item, label: text, cost_line: text) :: item:
+    set the name of {_mat} to {_label}
+    clear lore of {_mat}
+    add "&7Cena: %{_cost_line}%" to lore of {_mat}
+    return {_mat}
+
+function do_buy(p: player, give_item: item, cost: integer, cur: item, cur_name: text):
+    if {_p}'s inventory contains {_cost} of {_cur}:
+        remove {_cost} of {_cur} from {_p}'s inventory
+        give {_give_item} to {_p}
+        play sound "entity.player.levelup" to {_p}
+        send action bar "&a✔ Zakupiono!" to {_p}
+    else:
+        play sound "block.note_block.bass" to {_p}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  MENU GŁÓWNE – 5 rzędów, kategorie na slotach 12/14/16/30/32/34
+# ═══════════════════════════════════════════════════════════════════
+function open_shop_main(p: player):
+    set {_m} to a new chest inventory with 5 rows named "&6&l✦ Sklep ✦"
+    loop 45 times:
+        set slot (loop-number - 1) of {_m} to gray stained glass pane named " "
+    set slot 11 of {_m} to white wool      named "&e&l⧉ Bloki"
+    set slot 13 of {_m} to iron sword      named "&c&l⚔ Bronie"
+    set slot 15 of {_m} to iron chestplate named "&b&l🛡 Zbroja"
+    set slot 29 of {_m} to iron pickaxe    named "&7&l⛏ Narzędzia"
+    set slot 31 of {_m} to bread           named "&a&l🍽 Jedzenie"
+    set slot 33 of {_m} to tnt             named "&d&l✦ Różne"
+    add {_m} to {shop::inventories::*}
+    open {_m} to {_p}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  BLOKI
+# ═══════════════════════════════════════════════════════════════════
+function open_shop_blocks(p: player):
+    set {_m} to a new chest inventory with 3 rows named "&e&l⧉ Bloki"
+    loop 9 times:
+        set slot (loop-number - 1) of {_m} to gray stained glass pane named " "
+        set slot (loop-number + 17) of {_m} to gray stained glass pane named " "
+    set slot 9  of {_m} to gray stained glass pane named " "
+    set slot 16 of {_m} to gray stained glass pane named " "
+    set slot 17 of {_m} to gray stained glass pane named " "
+    set slot 10 of {_m} to make_btn(16 of white wool,  "&fWełna &8x16",        "&75 &fŻelaza")
+    set slot 11 of {_m} to make_btn(12 of oak planks,  "&6Deski Dębowe &8x12", "&76 &fŻelaza")
+    set slot 12 of {_m} to make_btn(16 of yellow stained glass,  "&eSzkło Wybuchooporne &8x16",  "&62 &fZłota")
+    set slot 13 of {_m} to make_btn(8 of cobblestone,  "&7Bruk &8x8",          "&62 &fZłota")
+    set slot 14 of {_m} to make_btn(8 of end stone,    "&eKamień Kresu &8x8",  "&b2 &fDiamenty")
+    set slot 15 of {_m} to make_btn(2 of obsidian,     "&8&lObsydian &8x2",    "&21 &fSzmaragd")
+    set slot 16 of {_m} to make_btn(6 of ladder,       "&7Drabina &8x6",       "&75 &fŻelaza")
+    set slot 26 of {_m} to barrier named "&c&l⬅ Powrót"
+    add {_m} to {shop::inventories::*}
+    open {_m} to {_p}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  BRONIE – 7 przedmiotów w slotach 11–17
+# ═══════════════════════════════════════════════════════════════════
+function open_shop_weapons(p: player):
+    set {_m} to a new chest inventory with 3 rows named "&c&l⚔ Bronie"
+    loop 9 times:
+        set slot (loop-number - 1) of {_m} to gray stained glass pane named " "
+        set slot (loop-number + 17) of {_m} to gray stained glass pane named " "
+    set slot 17  of {_m} to gray stained glass pane named " "
+    set slot 9 of {_m} to gray stained glass pane named " "
+    set slot 10 of {_m} to make_btn(wooden sword,            "&7Drewniany Miecz",        "&710 &fŻelaza")
+    set slot 11 of {_m} to make_btn(stone sword,             "&8Kamienny Miecz",         "&64 &fZłota")
+    set slot 12 of {_m} to make_btn(iron sword,              "&f&lŻelazny Miecz",        "&b2 &fDiamenty")
+    set slot 13 of {_m} to make_btn(diamond sword,           "&b&lDiamentowy Miecz",     "&22 &fSzmaragdy")
+    set slot 14 of {_m} to make_btn(bow,                     "&7Łuk",                    "&68 &fZłota")
+    set slot 15 of {_m} to make_btn(8 of arrow,              "&7Strzały &8x8",           "&75 &fŻelaza")
+    set slot 16 of {_m} to make_btn(splash potion of strong poison,                     "&2&lMiotana Mikstura Zatrucia", "&22 &fSzmaragdy")
+    set slot 26 of {_m} to barrier named "&c&l⬅ Powrót"
+    add {_m} to {shop::inventories::*}
+    open {_m} to {_p}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  ZBROJA – 6 rzędów | Skórzana | Kolczugowa | Żelazna | Diamentowa
+#  Rząd 0: szare szyby | Rzędy 1–4: tiery | Rząd 5: szyby + powrót
+# ═══════════════════════════════════════════════════════════════════
+function open_shop_armor(p: player):
+    set {_m} to a new chest inventory with 6 rows named "&b&l🛡 Zbroja"
+
+    # Rząd 0 – dekoracyjne szyby (sloty 0–8)
+    loop 9 times:
+        set slot (loop-number - 1) of {_m} to gray stained glass pane named " "
+
+    # Tier 1 – Skórzana (sloty 9–17)
+    set slot 9  of {_m} to gray stained glass pane named "&6&l── Skórzana ──"
+    set slot 10 of {_m} to make_btn(leather helmet,     "&6Skórzany Hełm",       "&73 &fŻelaza")
+    set slot 11 of {_m} to make_btn(leather chestplate, "&6Skórzany Napierśnik",  "&75 &fŻelaza")
+    set slot 12 of {_m} to make_btn(leather leggings,   "&6Skórzane Spodnie",     "&74 &fŻelaza")
+    set slot 13 of {_m} to make_btn(leather boots,      "&6Skórzane Buty",        "&73 &fŻelaza")
+    loop 4 times:
+        set slot (loop-number + 13) of {_m} to gray stained glass pane named " "
+
+    # Tier 2 – Kolczugowa (sloty 18–26)
+    set slot 18 of {_m} to gray stained glass pane named "&7&l── Kolczugowa ──"
+    set slot 19 of {_m} to make_btn(chainmail helmet,     "&7Kolczugowy Hełm",       "&63 &fZłota")
+    set slot 20 of {_m} to make_btn(chainmail chestplate, "&7Kolczugowy Napierśnik",  "&65 &fZłota")
+    set slot 21 of {_m} to make_btn(chainmail leggings,   "&7Kolczugowe Spodnie",     "&64 &fZłota")
+    set slot 22 of {_m} to make_btn(chainmail boots,      "&7Kolczugowe Buty",        "&63 &fZłota")
+    loop 4 times:
+        set slot (loop-number + 22) of {_m} to gray stained glass pane named " "
+
+    # Tier 3 – Żelazna (sloty 27–35)
+    set slot 27 of {_m} to gray stained glass pane named "&f&l── Żelazna ──"
+    set slot 28 of {_m} to make_btn(iron helmet,     "&f&lŻelazny Hełm",       "&b1 &fDiament")
+    set slot 29 of {_m} to make_btn(iron chestplate, "&f&lŻelazny Napierśnik",  "&b3 &fDiamenty")
+    set slot 30 of {_m} to make_btn(iron leggings,   "&f&lŻelazne Spodnie",     "&b2 &fDiamenty")
+    set slot 31 of {_m} to make_btn(iron boots,      "&f&lŻelazne Buty",        "&b1 &fDiament")
+    loop 4 times:
+        set slot (loop-number + 31) of {_m} to gray stained glass pane named " "
+
+    # Tier 4 – Diamentowa (sloty 36–44)
+    set slot 36 of {_m} to gray stained glass pane named "&b&l── Diamentowa ──"
+    set slot 37 of {_m} to make_btn(diamond helmet,     "&b&lDiamentowy Hełm",       "&b4 &fDiamenty")
+    set slot 38 of {_m} to make_btn(diamond chestplate, "&b&lDiamentowy Napierśnik",  "&21 &fSzmaragd")
+    set slot 39 of {_m} to make_btn(diamond leggings,   "&b&lDiamentowe Spodnie",     "&21 &fSzmaragd")
+    set slot 40 of {_m} to make_btn(diamond boots,      "&b&lDiamentowe Buty",        "&b4 &fDiamenty")
+    loop 4 times:
+        set slot (loop-number + 40) of {_m} to gray stained glass pane named " "
+
+    # Rząd 5 – szyby + powrót w ostatnim slocie (53)
+    loop 9 times:
+        set slot (loop-number + 44) of {_m} to gray stained glass pane named " "
+    set slot 53 of {_m} to barrier named "&c&l⬅ Powrót"
+
+    add {_m} to {shop::inventories::*}
+    open {_m} to {_p}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  NARZĘDZIA – 6 rzędów | Kilofy | Siekiery | Inne
+#  Rząd 0: szare szyby | Rzędy 1–3: narzędzia | Rzędy 4–5: szyby
+# ═══════════════════════════════════════════════════════════════════
+function open_shop_tools(p: player):
+    set {_m} to a new chest inventory with 6 rows named "&7&l⛏ Narzędzia"
+
+    # Rząd 0 – dekoracyjne szyby (sloty 0–8)
+    loop 9 times:
+        set slot (loop-number - 1) of {_m} to gray stained glass pane named " "
+
+    # Kilofy (sloty 9–17)
+    set slot 9  of {_m} to gray stained glass pane named "&8&l── Kilofy ──"
+    set slot 10 of {_m} to make_btn(wooden pickaxe,  "&7Drewniany Kilof",    "&78 &fŻelaza")
+    set slot 11 of {_m} to make_btn(stone pickaxe,   "&8Kamienny Kilof",     "&63 &fZłota")
+    set slot 12 of {_m} to make_btn(iron pickaxe,    "&f&lŻelazny Kilof",    "&b2 &fDiamenty")
+    set slot 13 of {_m} to make_btn(diamond pickaxe, "&b&lDiamentowy Kilof", "&22 &fSzmaragdy")
+    loop 4 times:
+        set slot (loop-number + 13) of {_m} to gray stained glass pane named " "
+
+    # Siekiery (sloty 18–26)
+    set slot 18 of {_m} to gray stained glass pane named "&8&l── Siekiery ──"
+    set slot 19 of {_m} to make_btn(wooden axe,  "&7Drewniana Siekiera",    "&78 &fŻelaza")
+    set slot 20 of {_m} to make_btn(stone axe,   "&8Kamienna Siekiera",     "&63 &fZłota")
+    set slot 21 of {_m} to make_btn(iron axe,    "&f&lŻelazna Siekiera",    "&b2 &fDiamenty")
+    set slot 22 of {_m} to make_btn(diamond axe, "&b&lDiamentowa Siekiera", "&22 &fSzmaragdy")
+    loop 4 times:
+        set slot (loop-number + 22) of {_m} to gray stained glass pane named " "
+
+    # Inne (sloty 27–35)
+    set slot 27 of {_m} to gray stained glass pane named "&8&l── Inne ──"
+    set slot 28 of {_m} to make_btn(shears, "&7Nożyce", "&720 &fŻelaza")
+    loop 7 times:
+        set slot (loop-number + 28) of {_m} to gray stained glass pane named " "
+
+    # Rzędy 4–5 – szyby (sloty 36–53) + powrót w ostatnim slocie
+    loop 9 times:
+        set slot (loop-number + 35) of {_m} to gray stained glass pane named " "
+        set slot (loop-number + 44) of {_m} to gray stained glass pane named " "
+    set slot 53 of {_m} to barrier named "&c&l⬅ Powrót"
+
+    add {_m} to {shop::inventories::*}
+    open {_m} to {_p}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  JEDZENIE
+# ═══════════════════════════════════════════════════════════════════
+function open_shop_food(p: player):
+    set {_m} to a new chest inventory with 3 rows named "&a&l🍽 Jedzenie"
+    loop 9 times:
+        set slot (loop-number - 1) of {_m} to gray stained glass pane named " "
+        set slot (loop-number + 17) of {_m} to gray stained glass pane named " "
+    set slot 9  of {_m} to gray stained glass pane named " "
+    set slot 17 of {_m} to gray stained glass pane named " "
+    set slot 10 of {_m} to make_btn(5 of bread,                "&fChleb &8x5",              "&75 &fŻelaza")
+    set slot 11 of {_m} to make_btn(3 of cooked porkchop,      "&fPieczony Schab &8x3",     "&62 &fZłota")
+    set slot 12 of {_m} to make_btn(golden apple,              "&6Złote Jabłko",             "&b1 &fDiament")
+    set slot 13 of {_m} to make_btn(enchanted golden apple,    "&6&lZaklęte Złote Jabłko",  "&22 &fSzmaragdy")
+    set slot 14 of {_m} to make_btn(splash potion of healing,  "&cMikstura Leczenia",        "&65 &fZłota")
+    set slot 15 of {_m} to make_btn(potion of speed,           "&aMikstura Prędkości",       "&66 &fZłota")
+    set slot 16 of {_m} to make_btn(potion of invisibility,    "&7Mikstura Niewidzialności", "&b2 &fDiamenty")
+    set slot 26 of {_m} to barrier named "&c&l⬅ Powrót"
+    add {_m} to {shop::inventories::*}
+    open {_m} to {_p}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  RÓŻNE – 7 przedmiotów w slotach 11–17 (w tym Ender Perła)
+# ═══════════════════════════════════════════════════════════════════
+function open_shop_misc(p: player):
+    set {_m} to a new chest inventory with 3 rows named "&d&l✦ Różne"
+    loop 9 times:
+        set slot (loop-number - 1) of {_m} to gray stained glass pane named " "
+        set slot (loop-number + 17) of {_m} to gray stained glass pane named " "
+    set slot 9  of {_m} to gray stained glass pane named " "
+    set slot 17 of {_m} to gray stained glass pane named " "
+    set slot 10 of {_m} to make_btn(tnt,         "&c&lTNT",            "&68 &fZłota")
+    set slot 11 of {_m} to make_btn(wind charge, "&f&lŁadunek Wiatru", "&62 &fZłota")
+    set {_bug} to snowball named "&a&lŚnieżka-Robaczywka"
+    add "&7Rzuć aby przywołać silverfisha" to lore of {_bug}
+    add "&7Cena: &b1 &fDiament" to lore of {_bug}
+    set slot 12 of {_m} to {_bug}
+    set {_egg} to egg named "&6&lMostowe Jajko"
+    add "&7Rzuć aby zbudować most z wełny" to lore of {_egg}
+    add "&7Cena: &68 &fZłota" to lore of {_egg}
+    set slot 13 of {_m} to {_egg}
+    set slot 14 of {_m} to make_btn(fire charge,   "&6&lKula Ognia",         "&732 &fŻelaza")
+    set {_kbmal} to wooden shovel named "&d&lOdrzutowa Pała"
+    add "&7Odrzuć przeciwnika 2 razy" to lore of {_kbmal}
+    add "&7Cena: &b1 &fDiament" to lore of {_kbmal}
+    set slot 15 of {_m} to {_kbmal}
+    set slot 16 of {_m} to make_btn(ender pearl,   "&5&lEnder Perła",      "&22 &fSzmaragdy")
+    set slot 26 of {_m} to barrier named "&c&l⬅ Powrót"
+    add {_m} to {shop::inventories::*}
+    open {_m} to {_p}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  KOMENDA
+# ═══════════════════════════════════════════════════════════════════
+command /shop:
+    trigger:
+        open_shop_main(player)
+
+on rightclick on villager:
+    if name of clicked entity is ".":
+        open_shop_main(player)
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  OBSŁUGA KLIKNIĘĆ
+# ═══════════════════════════════════════════════════════════════════
+on inventory click:
+    if {shop::inventories::*} contains event-inventory:
+        cancel event
+        if event-slot is air:
+            stop
+        set {_n} to name of event-slot
+        if {_n} is " ":
+            stop
+
+        if {_n} is "&c&l⬅ Powrót":
+            open_shop_main(player)
+            stop
+
+        # ── Menu główne ───────────────────────────────────────────────
+        if name of event-inventory is "&6&l✦ Sklep ✦":
+            if {_n} is "&e&l⧉ Bloki":
+                open_shop_blocks(player)
+            else if {_n} is "&c&l⚔ Bronie":
+                open_shop_weapons(player)
+            else if {_n} is "&b&l🛡 Zbroja":
+                open_shop_armor(player)
+            else if {_n} is "&7&l⛏ Narzędzia":
+                open_shop_tools(player)
+            else if {_n} is "&a&l🍽 Jedzenie":
+                open_shop_food(player)
+            else if {_n} is "&d&l✦ Różne":
+                open_shop_misc(player)
+            stop
+
+        # ── Bloki ─────────────────────────────────────────────────────
+        else if name of event-inventory is "&e&l⧉ Bloki":
+            if {_n} is "&fWełna &8x16":
+                if player has scoreboard tag "team1":
+                    do_buy(player, 16 of red wool, 5, iron ingot, "Żelaza")
+                else if player has scoreboard tag "team2":
+                    do_buy(player, 16 of blue wool, 5, iron ingot, "Żelaza")
+                else:
+                    do_buy(player, 16 of white wool, 5, iron ingot, "Żelaza")
+            else if {_n} is "&6Deski Dębowe &8x12":
+                do_buy(player, 12 of oak planks, 6, iron ingot, "Żelaza")
+            else if {_n} is "&7Bruk &8x8":
+                do_buy(player, 8 of cobblestone, 2, gold ingot, "Złota")
+            else if {_n} is "&eSzkło Wybuchooporne &8x16":
+                do_buy(player, 16 of yellow stained glass, 2, gold ingot, "Złota")
+            else if {_n} is "&eKamień Kresu &8x8":
+                do_buy(player, 8 of end stone, 2, diamond, "Diamenty")
+            else if {_n} is "&8&lObsydian &8x2":
+                do_buy(player, 2 of obsidian, 1, emerald, "Szmaragd")
+            else if {_n} is "&7Drabina &8x6":
+                do_buy(player, 6 of ladder, 5, iron ingot, "Żelaza")
+
+        # ── Bronie ────────────────────────────────────────────────────
+        else if name of event-inventory is "&c&l⚔ Bronie":
+            if {_n} is "&7Drewniany Miecz":
+                do_buy(player, wooden sword, 10, iron ingot, "Żelaza")
+            else if {_n} is "&8Kamienny Miecz":
+                do_buy(player, stone sword, 4, gold ingot, "Złota")
+            else if {_n} is "&f&lŻelazny Miecz":
+                do_buy(player, iron sword, 2, diamond, "Diamenty")
+            else if {_n} is "&b&lDiamentowy Miecz":
+                do_buy(player, diamond sword, 2, emerald, "Szmaragdy")
+            else if {_n} is "&7Łuk":
+                do_buy(player, bow, 8, gold ingot, "Złota")
+            else if {_n} is "&7Strzały &8x8":
+                do_buy(player, 8 of arrow, 5, iron ingot, "Żelaza")
+            else if {_n} is "&2&lMiotana Mikstura Zatrucia":
+                if player's inventory contains 2 of emerald:
+                    remove 2 of emerald from player's inventory
+                    give 1 of splash potion of strong poison to player
+                    play sound "entity.player.levelup" to player
+                    send action bar "&a✔ Zakupiono!" to player
+                else:
+                    play sound "block.note_block.bass" to player
+
+        # ── Zbroja ────────────────────────────────────────────────────
+        else if name of event-inventory is "&b&l🛡 Zbroja":
+            # Skórzana
+            if {_n} is "&6Skórzany Hełm":
+                do_buy(player, leather helmet, 3, iron ingot, "Żelaza")
+            else if {_n} is "&6Skórzany Napierśnik":
+                do_buy(player, leather chestplate, 5, iron ingot, "Żelaza")
+            else if {_n} is "&6Skórzane Spodnie":
+                do_buy(player, leather leggings, 4, iron ingot, "Żelaza")
+            else if {_n} is "&6Skórzane Buty":
+                do_buy(player, leather boots, 3, iron ingot, "Żelaza")
+            # Kolczugowa
+            else if {_n} is "&7Kolczugowy Hełm":
+                do_buy(player, chainmail helmet, 3, gold ingot, "Złota")
+            else if {_n} is "&7Kolczugowy Napierśnik":
+                do_buy(player, chainmail chestplate, 5, gold ingot, "Złota")
+            else if {_n} is "&7Kolczugowe Spodnie":
+                do_buy(player, chainmail leggings, 4, gold ingot, "Złota")
+            else if {_n} is "&7Kolczugowe Buty":
+                do_buy(player, chainmail boots, 3, gold ingot, "Złota")
+            # Żelazna
+            else if {_n} is "&f&lŻelazny Hełm":
+                do_buy(player, iron helmet, 1, diamond, "Diament")
+            else if {_n} is "&f&lŻelazny Napierśnik":
+                do_buy(player, iron chestplate, 3, diamond, "Diament")
+            else if {_n} is "&f&lŻelazne Spodnie":
+                do_buy(player, iron leggings, 2, diamond, "Diament")
+            else if {_n} is "&f&lŻelazne Buty":
+                do_buy(player, iron boots, 1, diamond, "Diament")
+            # Diamentowa
+            else if {_n} is "&b&lDiamentowy Hełm":
+                do_buy(player, diamond helmet, 4, diamond, "Diamenty")
+            else if {_n} is "&b&lDiamentowy Napierśnik":
+                do_buy(player, diamond chestplate, 1, emerald, "Szmaragd")
+            else if {_n} is "&b&lDiamentowe Spodnie":
+                do_buy(player, diamond leggings, 1, emerald, "Szmaragd")
+            else if {_n} is "&b&lDiamentowe Buty":
+                do_buy(player, diamond boots, 4, diamond, "Diamentów")
+
+        # ── Narzędzia ─────────────────────────────────────────────────
+        else if name of event-inventory is "&7&l⛏ Narzędzia":
+            if {_n} is "&7Drewniany Kilof":
+                do_buy(player, wooden pickaxe, 8, iron ingot, "Żelaza")
+            else if {_n} is "&8Kamienny Kilof":
+                do_buy(player, stone pickaxe, 3, gold ingot, "Złota")
+            else if {_n} is "&f&lŻelazny Kilof":
+                do_buy(player, iron pickaxe, 2, diamond, "Diamentów")
+            else if {_n} is "&b&lDiamentowy Kilof":
+                do_buy(player, diamond pickaxe, 2, emerald, "Szmaragdy")
+            else if {_n} is "&7Drewniana Siekiera":
+                do_buy(player, wooden axe, 8, iron ingot, "Żelaza")
+            else if {_n} is "&8Kamienna Siekiera":
+                do_buy(player, stone axe, 3, gold ingot, "Złota")
+            else if {_n} is "&f&lŻelazna Siekiera":
+                do_buy(player, iron axe, 2, diamond, "Diamentów")
+            else if {_n} is "&b&lDiamentowa Siekiera":
+                do_buy(player, diamond axe, 2, emerald, "Szmaragdów")
+            else if {_n} is "&7Nożyce":
+                do_buy(player, shears, 20, iron ingot, "Żelaza")
+
+        # ── Jedzenie ──────────────────────────────────────────────────
+        else if name of event-inventory is "&a&l🍽 Jedzenie":
+            if {_n} is "&fChleb &8x5":
+                do_buy(player, 5 of bread, 5, iron ingot, "Żelaza")
+            else if {_n} is "&fPieczony Schab &8x3":
+                do_buy(player, 3 of cooked porkchop, 2, gold ingot, "Złota")
+            else if {_n} is "&6Złote Jabłko":
+                do_buy(player, golden apple, 1, diamond, "Diament")
+            else if {_n} is "&6&lZaklęte Złote Jabłko":
+                do_buy(player, enchanted golden apple, 2, emerald, "Szmaragdów")
+            else if {_n} is "&cMikstura Leczenia":
+                do_buy(player, splash potion of healing, 5, gold ingot, "Złota")
+            else if {_n} is "&aMikstura Prędkości":
+                do_buy(player, potion of speed, 6, gold ingot, "Złota")
+            else if {_n} is "&7Mikstura Niewidzialności":
+                do_buy(player, potion of invisibility, 2, diamond, "Diamenty")
+
+        # ── Różne ─────────────────────────────────────────────────────
+        else if name of event-inventory is "&d&l✦ Różne":
+            if {_n} is "&c&lTNT":
+                do_buy(player, tnt, 8, gold ingot, "Złota")
+            else if {_n} is "&f&lŁadunek Wiatru":
+                do_buy(player, wind charge, 2, gold ingot, "Złota")
+            else if {_n} is "&a&lŚnieżka-Robaczywka":
+                do_buy(player, snowball, 1, diamond, "Diament")
+            else if {_n} is "&6&lMostowe Jajko":
+                do_buy(player, egg, 8, gold ingot, "Złota")
+            else if {_n} is "&6&lKula Ognia":
+                do_buy(player, fire charge, 32, iron ingot, "Żelaza")
+            else if {_n} is "&5&lEnder Perła":
+                do_buy(player, ender pearl, 2, emerald, "Szmaragdy")
+            else if {_n} is "&d&lOdrzutowa Pała":
+                if player's inventory contains 1 of diamond:
+                    remove 1 of diamond from player's inventory
+                    set {_mallet} to wooden shovel named "&d&lOdrzutowa Pała"
+                    enchant {_mallet} with knockback 3
+                    set damage of {_mallet} to 55
+                    give {_mallet} to player
+                    play sound "entity.player.levelup" to player
+                    send action bar "&a✔ Zakupiono!" to player
+                else:
+                    play sound "block.note_block.bass" to player
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  CZYSZCZENIE PO ZAMKNIĘCIU GUI
+# ═══════════════════════════════════════════════════════════════════
+on inventory close:
+    if {shop::inventories::*} contains event-inventory:
+        remove event-inventory from {shop::inventories::*}

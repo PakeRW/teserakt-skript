@@ -1,0 +1,27 @@
+on rightclick on sulfur cube:
+    if display name of clicked entity is "&6&lZRZUT ZAOPATRZENIA":
+        set {_totemchance} to random integer between 1 and 5
+        set {_ironamount} to random integer between 16 and 64
+        set {_goldamount} to random integer between 6 and 30
+        set {_diamondamount} to random integer between 2 and 10
+
+        play sound "block.chest.open" with volume 1 and pitch 0.8 at location 1 block above clicked entity
+        play sound "entity.firework_rocket.blast" with volume 1 and pitch 1.2 at location 1 block above clicked entity
+
+        draw 20 of dust using dustOption(red, 10) at location 1 block above clicked entity
+
+        drop {_ironamount} of iron ingot at location 1 block above clicked entity
+        drop {_goldamount} of gold ingot at location 1 block above clicked entity
+        drop {_diamondamount} of diamond at location 1 block above clicked entity
+        if {_totemchance} is equal to 5:
+            drop 1 of totem of undying at location 1 block above clicked entity
+
+        teleport clicked entity to location(0,-200,0, world "world")
+
+command /zrzut:
+    trigger:
+        summon a sulfur cube at location 200 block above player
+        set {_cube} to last spawned entity
+        set display name of {_cube} to "&6&lZRZUT ZAOPATRZENIA"
+        add nbt compound from "{equipment:{body:{id:""minecraft:red_wool"",count:1}},Size:2}" to nbt compound of {_cube}
+        apply glowing 1 to {_cube} for 3600 seconds

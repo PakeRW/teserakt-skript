@@ -1,0 +1,8 @@
+on join:
+    if world of player is "world":
+        set title of player's fastboard to mini message from "<rainbow><bold>HUBLIGA"
+        set line 1 of player's fastboard to mini message from "------------"
+        set line 2 of player's fastboard to mini message from " "
+        set line 3 of player's fastboard to mini message from "&6&lKLEŃŃŃ"
+        set line 4 of player's fastboard to mini message from " "
+        set line 5 of player's fastboard to mini message from "------------"

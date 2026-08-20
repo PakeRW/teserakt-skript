@@ -1,0 +1,45 @@
+on log:
+    if last log message contains "Loading 0 persistent chunks for level 'minecraft:br_solo_1":
+        if last log message does not contain "<":
+            send "&a&lŁadowanie terenu... (BR SOLO #1)" to all players
+            wait 2 ticks
+            execute console command "/chunky world br_solo_1"
+            execute console command "/chunky shape square"
+            execute console command "/chunky radius 400"
+            execute console command "/chunky spawn"
+            execute console command "/chunky start"
+            set {br_solo_1_status} to "&7Wczytywanie chunków..."
+    else if last log message contains "Loading 0 persistent chunks for level 'minecraft:br_solo_2":
+        if last log message does not contain "<":
+            send "&a&lŁadowanie terenu... (BR SOLO #2)" to all players
+            wait 2 ticks
+            execute console command "/chunky world br_solo_2"
+            execute console command "/chunky shape square"
+            execute console command "/chunky radius 400"
+            execute console command "/chunky spawn"
+            execute console command "/chunky start"
+            set {br_solo_2_status} to "&7Wczytywanie chunków..."
+
+command /chunkydone <text>:
+    trigger:
+        send "&a&lŚwiat %arg-1% gotowy!" to all players
+        wait 2 ticks
+        set {_spawn} to spawn location of world arg-1
+        set {_x} to x-coordinate of {_spawn}
+        set {_z} to z-coordinate of {_spawn}
+        execute console command "execute in minecraft:%arg-1% run worldborder center %{_x}% %{_z}%"
+        execute console command "execute in minecraft:%arg-1% run worldborder set 10"
+        if arg-1 is "br_solo_1":
+            set {br_solo_1_status} to "ready"
+        else if arg-1 is "br_solo_2":
+            set {br_solo_2_status} to "ready"
+
+command /manual_regen <text>:
+    trigger:
+        set {_seed} to random integer between -2147483648 and 2147483647
+        execute console command "mv regen %arg-1% --seed %{_seed}%"
+        if arg-1 is "br_solo_1":
+            set {br_solo_1_status} to "&8Generowanie nowej mapy..."
+        else if arg-1 is "br_solo_2":
+            set {br_solo_2_status} to "&8Generowanie nowej mapy..."
+        send "&a&lReset mapy %arg-1%..." to all players

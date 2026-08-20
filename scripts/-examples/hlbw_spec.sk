@@ -1,0 +1,380 @@
+#on shoot:
+#    if projectile is an egg:
+#        if projectile is in region "tlen2":
+#            if projectile is in region "tlen3":
+#                send "&e&l[HLBW] &r&cNie możesz tego tutaj użyć" to shooter
+#            else:
+#                if projectile is in region "tlen4":
+#                    send "&e&l[HLBW] &r&cNie możesz tego tutaj użyć" to shooter
+#                else:
+#                    send "Leci jajo!" to shooter
+#        else:
+#            send "&e&l[HLBW] &r&cNie możesz tego tutaj użyć" to shooter
+on skript start:
+    set {tlengame} to false
+    set {bluerespawn} to false
+    set {redrespawn} to false
+    set {tlendiamonds} to false
+    set {tlenemeralds} to false
+    set {tlenroundtimer} to 0
+
+on shoot:
+    if projectile is an egg:
+        if shooter is a player:
+            set {_y} to y-coordinate of shooter
+            wait 1 tick
+            loop 50 times:
+                wait 1 tick
+                if projectile is in region "tlen2":
+                    if projectile is in region "tlen3":
+                        kill projectile
+                        send "&e&l[HLBW] &r&cNie możesz tego tutaj użyć" to shooter
+                    else:
+                        if projectile is in region "tlen4":
+                            kill projectile
+                            send "&e&l[HLBW] &r&cNie możesz tego tutaj użyć" to shooter
+                        else:
+                            set {_x} to x-coordinate of projectile
+                            set {_z} to z-coordinate of projectile
+                            set {_loc} to location at {_x}, {_y}, {_z} in world of projectile
+                            if block at {_loc} is air:
+                                if shooter has scoreboard tag "team1":
+                                    set block at {_loc} to red wool
+                                else if shooter has scoreboard tag "team2":
+                                    set block at {_loc} to blue wool
+                                else:
+                                    set block at {_loc} to white wool
+                else:
+                    kill projectile
+                    send "&e&l[HLBW] &r&cNie możesz tego tutaj użyć" to shooter
+    if projectile is an ender pearl:
+        if shooter is a player:
+            loop 9999 times:
+                wait 1 tick
+                if projectile is in region "tlen1":
+                    set {_ype} to y-coordinate of projectile
+                    if {_ype} > 160:
+                        kill projectile
+                        send "&e&l[HLBW] &r&cNie możesz tego tutaj użyć" to shooter
+                        exit this loop
+            
+
+                
+
+
+
+# Przy uderzeniu – spawn silverfish + wycelowanie w najbliższego wroga
+on projectile hit:
+    if projectile is a snowball:
+        if projectile is in region "tlen2":
+            spawn silverfish at location of projectile
+            set {_sf} to last spawned silverfish
+            apply strength 1 to {_sf} for 31 seconds
+            apply resistance 2 to {_sf} for 31 seconds
+            apply slow falling 1 to {_sf} for 10 seconds
+            set {_locp} to location of projectile
+            set {_mind} to 100000
+            loop all players:
+                set {_d} to distance between {_locp} and location of loop-player
+                if {_d} < {_mind}:
+                    set {_mind} to {_d}
+                    set {_nearest} to loop-player
+            if {_nearest} is set:
+                set target of {_sf} to {_nearest}
+            
+            wait 30 seconds
+            if {_sf} is alive:
+                kill {_sf}
+
+on rightclick with fire charge:
+    if player is in region "tlen2":
+        if player is in region "tlen3":
+            send "&e&l[HLBW] &r&cNie możesz tego tutaj użyć" to player
+        else:
+            if player is in region "tlen4":
+                send "&e&l[HLBW] &r&cNie możesz tego tutaj użyć" to player
+            else:
+                spawn fireball 1 block above the player
+                push last spawned fireball in direction of player with force 1.5
+                play sound "entity.ghast.shoot" with volume 1.0 and pitch 1.0 at player's location
+                remove 1 of fire charge from player's inventory
+    else:
+        send "&e&l[HLBW] &r&cNie możesz tego tutaj użyć" to player
+
+on place of tnt:
+    if player is in region "tlen2":
+        if player is in region "tlen3":
+            cancel event
+            send "&e&l[HLBW] &r&cNie możesz tego tutaj użyć" to player
+        else:
+            if player is in region "tlen4":
+                cancel event
+                send "&e&l[HLBW] &r&cNie możesz tego tutaj użyć" to player
+            else:
+                cancel event
+                set event-block to air
+                spawn primed tnt at event-location
+                remove 1 of tnt from player's inventory
+    else:
+        cancel event
+        send "&e&l[HLBW] &r&cNie możesz tego tutaj użyć" to player
+
+aliases:
+    dozwolone-bloki = red wool, blue wool, white wool, oak planks, cobblestone, end stone, obsidian, ladder, yellow stained glass, red bed, blue bed, fire
+    wybuchajace-bloki = red wool, blue wool, white wool, oak planks, cobblestone, end stone, ladder, fire
+
+on break:
+    if player is in region "tlen2":
+        if type of block is not dozwolone-bloki:
+            cancel event
+        
+        if player has scoreboard tag "team1":
+            if type of block is red bed:
+                cancel event
+                send "&e&l[HLBW] &r&cNie możesz niszczyć własnego łóżka" to player
+            if type of block is blue bed:
+                set {bluerespawn} to false
+                execute console command "execute at @a run kill @e[type=item,nbt={Item:{id:""minecraft:blue_bed""}}]"
+                broadcast "&e&l[HLBW] &r&fŁóżko &9&lNiebieskich &r&fzostało zniszczone!"
+                execute console command "execute as @a at @s run playsound minecraft:item.trident.thunder master @s ~ ~1 ~ 10 1.0"
+                wait 1 tick
+                execute console command "execute at @a run kill @e[type=item,nbt={Item:{id:""minecraft:blue_bed""}}]"
+        else if player has scoreboard tag "team2":
+            if type of block is blue bed:
+                cancel event
+                send "&e&l[HLBW] &r&cNie możesz niszczyć własnego łóżka" to player
+            if type of block is red bed:
+                set {redrespawn} to false
+                execute console command "execute at @a run kill @e[type=item,nbt={Item:{id:""minecraft:red_bed""}}]"
+                broadcast "&e&l[HLBW] &r&fŁóżko &c&lCzerwonych &r&fzostało zniszczone!"
+                execute console command "execute as @a at @s run playsound minecraft:item.trident.thunder master @s ~ ~1 ~ 10 1.0"
+                wait 1 tick
+                execute console command "execute at @a run kill @e[type=item,nbt={Item:{id:""minecraft:red_bed""}}]"
+        else:
+            if type of block is red bed:
+                cancel event
+                send "§cNie możesz zniszczyć innych łóżek!" to player
+            if type of block is blue bed:
+                cancel event
+                send "§cNie możesz zniszczyć innych łóżek!" to player
+
+
+on explosion:
+    if event-location is in region "tlen2":
+        loop exploded blocks:
+            if type of loop-block is not wybuchajace-bloki:
+                remove loop-block from exploded blocks
+        
+#NIE ZAPOMNIJ! /recipe take @a * INACZEJ GRACZE BĘDĄ MIELI PRZEPISY NA WSZYSTKIE PRZEDMIOTY I BĘDĄ MOGŁI JE ROBIĆ W NIESKOŃCZONOŚĆ! (O ile nie mają już tych przepisów, wtedy nic się nie stanie)
+
+command /hlbw_set_red <text>:
+    trigger:
+        set {_team} to arg-1
+        execute console command "tag @a remove team1"
+        execute console command "tag @a[team=%{_team}%] remove team2"
+        execute console command "tag @a[team=%{_team}%] add team1"
+
+command /hlbw_set_blue <text>:
+    trigger:
+        set {_team} to arg-1
+        execute console command "tag @a remove team2"
+        execute console command "tag @a[team=%{_team}%] remove team1"
+        execute console command "tag @a[team=%{_team}%] add team2"
+
+command /hlbw_start:
+    trigger:
+        execute console command "gamemode survival @a[team=!comm]"
+        execute console command "mvtp @a[tag=team1] e:hlbw:0.50,175.00,0.50 --unsafe"
+        execute console command "mvtp @a[tag=team2] e:hlbw:0.50,175.00,0.50 --unsafe"
+        execute console command "mvtp @a[team=comm] e:hlbw:0.50,100.00,0.50 --unsafe"
+        wait 1 second
+        execute console command "clear @a[tag=team1]"
+        execute console command "clear @a[tag=team2]"
+        broadcast "&e&l[HLBW] &r&fGotowi?"
+        execute console command "gamemode survival @a[tag=team1]"
+        execute console command "gamemode survival @a[tag=team2]"
+        wait 2 seconds
+        set {tlengame} to true
+        set {bluerespawn} to true
+        set {redrespawn} to true
+        execute console command "recipe take @a *"
+        execute console command "mvtp @a[tag=team1] e:hlbw:0.50,81.00,-111.50 --unsafe"
+        execute console command "mvtp @a[tag=team2] e:hlbw:0.50,81.00,111.50 --unsafe"
+        execute console command "execute as @a at @s run playsound minecraft:block.note_block.harp master @s ~ ~1 ~ 10 2.0"
+        broadcast "&e&l[HLBW] &6&lSTART!"
+        loop 15 times:
+            if {tlengame} is false:
+                exit this loop
+            wait 30 seconds
+            if {tlengame} is false:
+                exit this loop
+            execute console command "execute in minecraft:hlbw run summon item 16 83 33 {Item:{id:""diamond""},Age:5400}"
+            execute console command "execute in minecraft:hlbw run summon item -16 83 -33 {Item:{id:""diamond""},Age:5400}"
+            if {tlengame} is false:
+                exit this loop
+            wait 30 seconds
+            if {tlengame} is false:
+                exit this loop
+            execute console command "execute in minecraft:hlbw run summon item 16 83 33 {Item:{id:""diamond""},Age:5400}"
+            execute console command "execute in minecraft:hlbw run summon item -16 83 -33 {Item:{id:""diamond""},Age:5400}"
+            if {tlengame} is false:
+                exit this loop
+            wait 30 seconds
+            if {tlengame} is false:
+                exit this loop
+            execute console command "execute in minecraft:hlbw run summon item 16 83 33 {Item:{id:""diamond""},Age:5400}"
+            execute console command "execute in minecraft:hlbw run summon item -16 83 -33 {Item:{id:""diamond""},Age:5400}"
+            execute console command "execute in minecraft:hlbw run summon item 65 83 0 {Item:{id:""emerald""},Age:4800}"
+            execute console command "execute in minecraft:hlbw run summon item -65 83 0 {Item:{id:""emerald""},Age:4800}"
+            if {tlengame} is false:
+                exit this loop
+        if {tlengame} is false:
+            if {redrespawn} is true:
+                if {bluerespawn} is true:
+                    broadcast "&e&l[HLBW] &cUWAGA! &r&fza &9&l3 minuty &r&fłóżka zostaną zniszczone!"
+                    execute console command "execute as @a at @s run playsound minecraft:block.enchantment_table.use master @s ~ ~1 ~ 10 1.0"
+                else:
+                    broadcast "&e&l[HLBW] &cUWAGA! &r&fza &9&l3 minuty &r&fprzegra ta drużyna, której łóżko zostało zniszczone jako pierwsze!"
+                    execute console command "execute as @a at @s run playsound minecraft:block.enchantment_table.use master @s ~ ~1 ~ 10 1.0"
+            else:
+                broadcast "&e&l[HLBW] &cUWAGA! &r&fza &9&l3 minuty &r&fprzegra ta drużyna, której łóżko zostało zniszczone jako pierwsze!"
+                execute console command "execute as @a at @s run playsound minecraft:block.enchantment_table.use master @s ~ ~1 ~ 10 1.0"
+        loop 2 times:
+            if {tlengame} is false:
+                exit this loop
+            wait 30 seconds
+            if {tlengame} is false:
+                exit this loop
+            execute console command "execute in minecraft:hlbw run summon item 16 83 33 {Item:{id:""diamond""},Age:5400}"
+            execute console command "execute in minecraft:hlbw run summon item -16 83 -33 {Item:{id:""diamond""},Age:5400}"
+            if {tlengame} is false:
+                exit this loop
+            wait 30 seconds
+            if {tlengame} is false:
+                exit this loop
+            execute console command "execute in minecraft:hlbw run summon item 16 83 33 {Item:{id:""diamond""},Age:5400}"
+            execute console command "execute in minecraft:hlbw run summon item -16 83 -33 {Item:{id:""diamond""},Age:5400}"
+            if {tlengame} is false:
+                exit this loop
+            wait 30 seconds
+            if {tlengame} is false:
+                exit this loop
+            execute console command "execute in minecraft:hlbw run summon item 16 83 33 {Item:{id:""diamond""},Age:5400}"
+            execute console command "execute in minecraft:hlbw run summon item -16 83 -33 {Item:{id:""diamond""},Age:5400}"
+            execute console command "execute in minecraft:hlbw run summon item 65 83 0 {Item:{id:""emerald""},Age:4800}"
+            execute console command "execute in minecraft:hlbw run summon item -65 83 0 {Item:{id:""emerald""},Age:4800}"
+            if {tlengame} is false:
+                exit this loop
+        if {tlengame} is false:
+            if {redrespawn} is true:
+                if {bluerespawn} is true:
+                    set {bluerespawn} to false
+                    set {redrespawn} to false
+                    execute console command "execute in minecraft:hlbw run fill 0 80 97 0 80 98 air"
+                    execute console command "execute in minecraft:hlbw run fill 0 80 -97 0 80 -98 air"
+                    broadcast "&e&l[HLBW] &r&fŁóżko &c&lCzerwonych &r&fzostało zniszczone!"
+                    broadcast "&e&l[HLBW] &r&fŁóżko &9&lNiebieskich &r&fzostało zniszczone!"
+                    execute console command "execute as @a at @s run playsound minecraft:item.trident.thunder master @s ~ ~1 ~ 10 1.0"
+                else:
+                    broadcast "&e&l[HLBW] &r&fCzas minął, drużyno &9&lNiebieskich!"
+                    execute console command "execute as @a at @s run playsound minecraft:item.trident.thunder master @s ~ ~1 ~ 10 1.0"
+                    execute console command "kill @a[tag=team2]"
+            else:
+                if {bluerespawn} is true:
+                    broadcast "&e&l[HLBW] &r&fCzas minął, drużyno &c&lCzerwonych!"
+                    execute console command "execute as @a at @s run playsound minecraft:item.trident.thunder master @s ~ ~1 ~ 10 1.0"
+                    execute console command "kill @a[tag=team1]"
+                else:
+                    broadcast "&e&l[HLBW] &r&fCzas minął!"
+                    execute console command "execute as @a at @s run playsound minecraft:item.trident.thunder master @s ~ ~1 ~ 10 1.0"
+                    execute console command "kill @a[tag=team1]"
+                    execute console command "kill @a[tag=team2]"
+                
+
+
+
+
+command /hlbw_end:
+    trigger:
+        set {tlengame} to false
+        set {bluerespawn} to false
+        set {redrespawn} to false
+        set {tlenroundtimer} to 0
+        execute console command "mvtp @a[tag=team1] world"
+        execute console command "mvtp @a[tag=team2] world"
+        execute console command "kill @e[type=item]"
+        execute console command "kill @e[type=arrow]"
+        make player execute command "/gamemode spectator"
+        make player execute command "/mvtp @s e:hlbw:0,90,0 --unsafe"
+        wait 3 ticks
+        make player execute command "//schem load tlen2.bw.schem"
+        wait 4 seconds
+        make player execute command "//paste"
+
+every 1 second:
+    if {tlengame} is true:
+        add 1 to {tlenroundtimer}
+
+
+every 3 seconds:
+    if {tlengame} is true:
+        execute console command "execute in minecraft:hlbw run summon item 0 81 -119 {Item:{id:""iron_ingot""},Age:5400}"
+        execute console command "execute in minecraft:hlbw run summon item 0 81 119 {Item:{id:""iron_ingot""},Age:5400}"
+
+every 12 seconds:
+    if {tlengame} is true:
+        execute console command "execute in minecraft:hlbw run summon item 0 81 -119 {Item:{id:""gold_ingot""},Age:5400}"
+        execute console command "execute in minecraft:hlbw run summon item 0 81 119 {Item:{id:""gold_ingot""},Age:5400}"
+
+on respawn:
+    wait 1 tick
+    if world of player is world "hlbw":
+        if player has scoreboard tag "team1":
+            if {redrespawn} is true:
+                execute console command "mvtp %player% e:hlbw:0.50,175.00,0.50 --unsafe"
+                wait 1 tick
+                send "&e&l[HLBW] &r&fRespawn za &2&l5&r&f..." to player
+                wait 1 second
+                send "&e&l[HLBW] &2&l4&r&f..." to player
+                wait 1 second
+                send "&e&l[HLBW] &2&l3&r&f..." to player
+                wait 1 second
+                send "&e&l[HLBW] &2&l2&r&f..." to player
+                wait 1 second
+                send "&e&l[HLBW] &2&l1&r&f..." to player
+                wait 1 second
+                execute console command "mvtp %player% e:hlbw:0.50,81.00,-111.50 --unsafe"
+            else:
+                execute console command "mvtp %player% world"
+                broadcast "&e&l[HLBW] &r&fGracz &e%player% &fumarł w &2%{tlenroundtimer}% &fsekundzie meczu"
+        else if player has scoreboard tag "team2":
+            if {bluerespawn} is true:
+                execute console command "mvtp %player% e:hlbw:0.50,175.00,0.50 --unsafe"
+                wait 1 tick
+                send "&e&l[HLBW] &r&fRespawn za &2&l5&r&f..." to player
+                wait 1 second
+                send "&e&l[HLBW] &2&l4&r&f..." to player
+                wait 1 second
+                send "&e&l[HLBW] &2&l3&r&f..." to player
+                wait 1 second
+                send "&e&l[HLBW] &2&l2&r&f..." to player
+                wait 1 second
+                send "&e&l[HLBW] &2&l1&r&f..." to player
+                wait 1 second
+                execute console command "mvtp %player% e:hlbw:0.50,81.00,111.50 --unsafe"
+            else:
+                execute console command "mvtp %player% world"
+                broadcast "&e&l[HLBW] &r&fGracz &e%player% &fumarł w &2%{tlenroundtimer}% &fsekundzie meczu"
+
+on death of player:
+    if world of victim is world "hlbw":
+        set {_helmet} to helmet of victim
+        set {_chestplate} to chestplate of victim
+        set {_leggings} to leggings of victim
+        set {_boots} to boots of victim
+        clear inventory of victim
+        set helmet of victim to {_helmet}
+        set chestplate of victim to {_chestplate}
+        set leggings of victim to {_leggings}
+        set boots of victim to {_boots}
+

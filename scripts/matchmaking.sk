@@ -1,0 +1,324 @@
+on first join:
+    give player recovery compass named "&a&lWybór Gier"
+
+command /give_wybor [<player>]:
+    trigger:
+        give arg-1 recovery compass named "&a&lWybór Gier"
+
+on rightclick with recovery compass:
+    if name of player's tool is "&a&lWybór Gier":
+        main_choice(player)
+
+on drop:
+    if event-item is recovery compass:
+        if name of event-item is "&a&lWybór Gier":
+            cancel event
+
+on skript start:
+    clear {br_solo_1_queue::order::*}
+    set {br_solo_1_status} to "ready"
+    clear {br_solo_2_queue::order::*}
+    set {br_solo_2_status} to "ready"
+    
+
+on inventory click:
+    if name of event-inventory is "&2&lWybór Gier":
+        cancel event
+        if event-slot is air:
+            stop
+        set {_n} to name of event-slot
+        if {_n} is " ":
+            stop
+        if {_n} is "&b&lBattle Royale":
+            br_room_choice(player)
+        if {_n} is "&e&lBed Wars":
+            bw_room_choice(player)
+
+    if name of event-inventory is "&b&lBattle Royale - Mapy":
+        cancel event
+        if event-slot is air:
+            stop
+        set {_n} to name of event-slot
+        if {_n} is " ":
+            stop
+        if item in event-slot is custom item with id "teserakt:return":
+            main_choice(player)
+            stop
+        if {_n} is "&bBR Solo (Mapa #1)":
+            if {br_solo_1_status} is "ready":
+                if {br_solo_1_queue::order::*} is set:
+                    if size of {br_solo_1_queue::order::*} is less than 18:
+                        br_room_1(player)
+                        stop
+                    else:
+                        play sound "block.note_block.bass" to player
+                        stop
+                else:
+                    br_room_1(player)
+                    stop
+            else:
+                play sound "block.note_block.bass" to player
+                stop
+        if {_n} is "&bBR Solo (Mapa #2)":
+            if {br_solo_2_status} is "ready":
+                if {br_solo_2_queue::order::*} is set:
+                    if size of {br_solo_2_queue::order::*} is less than 18:
+                        br_room_2(player)
+                        stop
+                    else:
+                        play sound "block.note_block.bass" to player
+                        stop
+                else:
+                    br_room_2(player)
+                    stop
+            else:
+                play sound "block.note_block.bass" to player
+                stop
+    if name of event-inventory is "&b&lBR Solo (Mapa #1)":
+        cancel event
+        if event-slot is air:
+            stop
+        set {_n} to name of event-slot
+        if {_n} is " ":
+            stop
+        if item in event-slot is custom item with id "teserakt:return":
+            leave_lobby(player, event-inventory)
+            br_room_choice(player)
+            stop
+        if item in event-slot is custom item with id "teserakt:ready":
+            set {br_solo_1_queue::inventories::%player%::ready} to true
+            stop
+        if item in event-slot is custom item with id "teserakt:cancel":
+            set {br_solo_1_queue::inventories::%player%::ready} to false
+            stop
+    if name of event-inventory is "&b&lBR Solo (Mapa #2)":
+        cancel event
+        if event-slot is air:
+            stop
+        set {_n} to name of event-slot
+        if {_n} is " ":
+            stop
+        if item in event-slot is custom item with id "teserakt:return":
+            leave_lobby(player, event-inventory)
+            br_room_choice(player)
+            stop
+        if item in event-slot is custom item with id "teserakt:ready":
+            set {br_solo_2_queue::inventories::%player%::ready} to true
+            stop
+        if item in event-slot is custom item with id "teserakt:cancel":
+            set {br_solo_2_queue::inventories::%player%::ready} to false
+            stop
+    
+    if name of event-inventory is "&e&lBed Wars - Mapy":
+        cancel event
+        if event-slot is air:
+            stop
+        set {_n} to name of event-slot
+        if {_n} is " ":
+            stop
+        if item in event-slot is custom item with id "teserakt:return":
+            main_choice(player)
+            stop
+        
+on inventory close:
+    leave_lobby(player, event-inventory)
+
+
+function leave_lobby(p: player, inv: inventory):
+    if {br_solo_menu::inventories::*} contains {_inv}:
+        remove {_inv} from {br_solo_menu::inventories::*}
+    if {br_solo_1_queue::inventories::%{_p}%} is {_inv}:
+        delete {br_solo_1_queue::inventories::%{_p}%}
+        remove {_p} from {br_solo_1_queue::order::*}
+    if {br_solo_2_queue::inventories::%{_p}%} is {_inv}:
+        delete {br_solo_2_queue::inventories::%{_p}%}
+        remove {_p} from {br_solo_2_queue::order::*} 
+
+function mk_inv(name: text, rows: int) :: inventory:
+	set {_gui} to a new chest inventory with {_rows} rows with name {_name}
+	loop {_rows} * 9 times:
+		set slot loop-number - 1 of {_gui} to gray stained glass pane named " "
+	return {_gui}
+
+function main_choice(p: player) :: inventory:
+    set {_menu} to mk_inv("&2&lWybór Gier", 5)
+    set {_br} to diamond sword named "&b&lBattle Royale"
+    clear lore of {_br}
+    add "&7Walka o przetrwanie na losowym seedzie" to lore of {_br}
+    add "&7z customowymi strukturami" to lore of {_br}
+    set slot 10 of {_menu} to {_br}
+    set slot 12 of {_menu} to yellow bed named "&e&lBed Wars"
+    set slot 14 of {_menu} to netherite axe named "&c&lPvP Arena"
+    set slot 16 of {_menu} to slime block named "&a&lSulfur Ball"
+    set slot 28 of {_menu} to grass block named "&7&lSurvival"
+    set slot 30 of {_menu} to bedrock named "&8&lKWADRAT"
+    open {_menu} to {_p}
+
+function br_room_choice(p: player) :: inventory:
+    set {_menu} to mk_inv("&b&lBattle Royale - Mapy", 4)
+    if {br_solo_1_status} is not set:
+        set {br_solo_1_status} to "ready"
+    if {br_solo_2_status} is not set:
+        set {br_solo_2_status} to "ready"
+    if {br_solo_1_status} is "ready":
+        set slot 10 of {_menu} to apple named "&bBR Solo (Mapa #1)" with lore "&eŁadowanie..."
+    else:
+        set slot 10 of {_menu} to apple named "&bBR Solo (Mapa #1)" with lore {br_solo_1_status}
+    if {br_solo_2_status} is "ready":
+        set slot 12 of {_menu} to apple named "&bBR Solo (Mapa #2)" with lore "&eŁadowanie..."
+    else:
+        set slot 12 of {_menu} to apple named "&bBR Solo (Mapa #2)" with lore {br_solo_2_status}
+    set slot 14 of {_menu} to glow berries named "&bBR Duo"
+    set slot 16 of {_menu} to sweet berries named "&bBR Trio"
+    loop 8 times:
+        set slot loop-number + 26 of {_menu} to black stained glass pane named " "
+    set slot 35 of {_menu} to custom item with id "teserakt:return"
+    add {_menu} to {br_solo_menu::inventories::*}
+    open {_menu} to {_p}
+
+function bw_room_choice(p: player) :: inventory:
+    set {_menu} to mk_inv("&e&lBed Wars - Mapy", 4)
+    set slot 10 of {_menu} to blue orchid named "&eBW 1v1v1v1 (Mapa #1)"
+    set slot 12 of {_menu} to blue orchid named "&eBW 1v1v1v1 (Mapa #2)"
+    set slot 14 of {_menu} to glow berries named "&eBW 1v1 (Mapa #1)"
+    set slot 16 of {_menu} to glow berries named "&eBW 1v1 (Mapa #2)"
+    loop 8 times:
+        set slot loop-number + 26 of {_menu} to black stained glass pane named " "
+    set slot 35 of {_menu} to custom item with id "teserakt:return"
+    open {_menu} to {_p}
+
+function br_room_1(p: player) :: inventory:
+    set {_menu} to mk_inv("&b&lBR Solo (Mapa #1)", 6)
+    set slot 0 of {_menu} to custom item with id "teserakt:wait"
+    set slot 1 of {_menu} to custom item with id "teserakt:wait"
+    loop 7 times:
+        set slot loop-number + 1 of {_menu} to black stained glass pane named " "
+    loop 9 times:
+        set slot loop-number + 44 of {_menu} to black stained glass pane named " "
+    set slot 53 of {_menu} to custom item with id "teserakt:return"
+    
+    if {br_solo_1_queue::order::*} does not contain {_p}:
+        add {_p} to {br_solo_1_queue::order::*}
+
+    set {_slot} to 18
+    loop {br_solo_1_queue::order::*}:
+        set {_player} to loop-value
+        set {_head} to skull of {_player} named "&e%{_player}%"
+        clear lore of {_head}
+        add "&8Nie gotowy" to lore of {_head}
+        set slot {_slot} of {_menu} to {_head}
+        add 1 to {_slot}
+    
+    set {br_solo_1_queue::inventories::%{_p}%::ready} to false
+    set {br_solo_1_queue::inventories::%{_p}%} to {_menu}
+    open {_menu} to {_p}
+
+function br_room_2(p: player) :: inventory:
+    set {_menu} to mk_inv("&b&lBR Solo (Mapa #2)", 6)
+    set slot 0 of {_menu} to custom item with id "teserakt:wait"
+    set slot 1 of {_menu} to custom item with id "teserakt:wait"
+    loop 7 times:
+        set slot loop-number + 1 of {_menu} to black stained glass pane named " "
+    loop 9 times:
+        set slot loop-number + 44 of {_menu} to black stained glass pane named " "
+    set slot 53 of {_menu} to custom item with id "teserakt:return"
+    
+    if {br_solo_2_queue::order::*} does not contain {_p}:
+        add {_p} to {br_solo_2_queue::order::*}
+
+    set {_slot} to 18
+    loop {br_solo_2_queue::order::*}:
+        set {_player} to loop-value
+        set {_head} to skull of {_player} named "&e%{_player}%"
+        clear lore of {_head}
+        add "&8Nie gotowy" to lore of {_head}
+        set slot {_slot} of {_menu} to {_head}
+        add 1 to {_slot}
+    
+    set {br_solo_2_queue::inventories::%{_p}%::ready} to false
+    set {br_solo_2_queue::inventories::%{_p}%} to {_menu}
+    open {_menu} to {_p}
+
+every 5 ticks:
+    loop {br_solo_1_queue::inventories::*}:
+        set {_inv} to loop-value-1
+        set {_slot} to 18
+        loop 18 times:
+            set slot {_slot} of {_inv} to white stained glass pane named " "
+            add 1 to {_slot}
+        set {_slot} to 18
+        loop {br_solo_1_queue::order::*}:
+            set {_player} to loop-value-2
+            set {_head} to skull of {_player} named "&e%{_player}%"
+            clear lore of {_head}
+            if {br_solo_1_queue::inventories::%{_player}%::ready} is true:
+                add "&aGotowy" to lore of {_head}
+            else:
+                add "&8Nie gotowy" to lore of {_head}
+            set slot {_slot} of {_inv} to {_head}
+            add 1 to {_slot}
+        if {br_solo_1_queue::inventories::%{_player}%::ready} is true:
+            set slot 0 of {_inv} to custom item with id "teserakt:cancel"
+        else:
+            set slot 0 of {_inv} to custom item with id "teserakt:ready"
+        if {br_solo_1_queue::order::*} is set:
+            if size of {br_solo_1_queue::order::*} is less than 3:
+                set slot 1 of {_inv} to custom item with id "teserakt:forbid" with lore "&7Zbyt mało graczy (min. 3)"
+            else:
+                set slot 1 of {_inv} to custom item with id "teserakt:ok" with lore "&7Zwycięstwa i porażki będą liczone"
+    
+    loop {br_solo_2_queue::inventories::*}:
+        set {_inv} to loop-value-1
+        set {_slot} to 18
+        loop 18 times:
+            set slot {_slot} of {_inv} to white stained glass pane named " "
+            add 1 to {_slot}
+        set {_slot} to 18
+        loop {br_solo_2_queue::order::*}:
+            set {_player} to loop-value-2
+            set {_head} to skull of {_player} named "&e%{_player}%"
+            clear lore of {_head}
+            if {br_solo_2_queue::inventories::%{_player}%::ready} is true:
+                add "&aGotowy" to lore of {_head}
+            else:
+                add "&8Nie gotowy" to lore of {_head}
+            set slot {_slot} of {_inv} to {_head}
+            add 1 to {_slot}
+        if {br_solo_2_queue::inventories::%{_player}%::ready} is true:
+            set slot 0 of {_inv} to custom item with id "teserakt:cancel"
+        else:
+            set slot 0 of {_inv} to custom item with id "teserakt:ready"
+        if {br_solo_2_queue::order::*} is set:
+            if size of {br_solo_2_queue::order::*} is less than 3:
+                set slot 1 of {_inv} to custom item with id "teserakt:forbid" with lore "&7Zbyt mało graczy (min. 3)"
+            else:
+                set slot 1 of {_inv} to custom item with id "teserakt:ok" with lore "&7Zwycięstwa i porażki będą liczone"
+
+    loop {br_solo_menu::inventories::*}:
+        set {_inv} to loop-value
+        set {_playercount} to 0
+        if {br_solo_1_status} is "ready":
+            if {br_solo_1_queue::order::*} is set:
+                set {_playercount} to size of {br_solo_1_queue::order::*}
+            if {_playercount} is greater than 17:
+                set {_status_text} to "&c18/18 graczy"
+            else:
+                set {_status_text} to "&e%{_playercount}%/18 graczy"
+            set slot 10 of {_inv} to apple named "&bBR Solo (Mapa #1)" with lore {_status_text}
+        else:
+            set slot 10 of {_inv} to apple named "&bBR Solo (Mapa #1)" with lore {br_solo_1_status}
+        set {_playercount} to 0
+        if {br_solo_2_status} is "ready":
+            if {br_solo_2_queue::order::*} is set:
+                set {_playercount} to size of {br_solo_2_queue::order::*}
+            if {_playercount} is greater than 17:
+                set {_status_text} to "&c18/18 graczy"
+            else:
+                set {_status_text} to "&e%{_playercount}%/18 graczy"
+            set slot 12 of {_inv} to apple named "&bBR Solo (Mapa #2)" with lore {_status_text}
+        else:
+            set slot 12 of {_inv} to apple named "&bBR Solo (Mapa #2)" with lore {br_solo_2_status}
+
+
+
+
