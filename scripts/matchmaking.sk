@@ -242,6 +242,7 @@ function br_room_2(p: player) :: inventory:
 every 5 ticks:
     loop {br_solo_1_queue::inventories::*}:
         set {_inv} to loop-value-1
+        set {_owner} to loop-index-1
         set {_slot} to 18
         loop 18 times:
             set slot {_slot} of {_inv} to white stained glass pane named " "
@@ -257,7 +258,7 @@ every 5 ticks:
                 add "&8Nie gotowy" to lore of {_head}
             set slot {_slot} of {_inv} to {_head}
             add 1 to {_slot}
-        if {br_solo_1_queue::inventories::%{_player}%::ready} is true:
+        if {br_solo_1_queue::inventories::%{_owner}%::ready} is true:
             set slot 0 of {_inv} to custom item with id "teserakt:cancel"
         else:
             set slot 0 of {_inv} to custom item with id "teserakt:ready"
@@ -269,6 +270,7 @@ every 5 ticks:
     
     loop {br_solo_2_queue::inventories::*}:
         set {_inv} to loop-value-1
+        set {_owner} to loop-index-1
         set {_slot} to 18
         loop 18 times:
             set slot {_slot} of {_inv} to white stained glass pane named " "
@@ -284,7 +286,7 @@ every 5 ticks:
                 add "&8Nie gotowy" to lore of {_head}
             set slot {_slot} of {_inv} to {_head}
             add 1 to {_slot}
-        if {br_solo_2_queue::inventories::%{_player}%::ready} is true:
+        if {br_solo_2_queue::inventories::%{_owner}%::ready} is true:
             set slot 0 of {_inv} to custom item with id "teserakt:cancel"
         else:
             set slot 0 of {_inv} to custom item with id "teserakt:ready"
