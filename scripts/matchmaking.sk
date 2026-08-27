@@ -256,8 +256,8 @@ every 5 ticks:
             if {br_solo_1_queue::inventories::%{_player}%::ready} is true:
                 add "&aGotowy" to lore of {_head}
             else:
-                add "&8Nie gotowy" to lore of {_head}
                 set {br_solo_1_all_ready} to false
+                add "&8Nie gotowy" to lore of {_head}
             set slot {_slot} of {_inv} to {_head}
             add 1 to {_slot}
         if {br_solo_1_queue::inventories::%{_owner}%::ready} is true:
@@ -270,6 +270,16 @@ every 5 ticks:
             else:
                 set slot 1 of {_inv} to custom item with id "teserakt:ok" with lore "&7Zwycięstwa i porażki będą liczone"
     
+    if {br_solo_1_queue::order::*} is set:
+        if size of {br_solo_1_queue::order::*} is more than 3:
+            if {br_solo_1_all_ready} is true:
+                clear {br_solo_1_players::*}
+                loop {br_solo_1_queue::inventories::*}:
+                    add loop-index-1 to {br_solo_1_players::*}
+                clear {br_solo_1_queue::inventories::*}
+                clear {br_solo_1_queue::order::*}
+            
+    
     loop {br_solo_2_queue::inventories::*}:
         set {_inv} to loop-value-1
         set {_owner} to loop-index-1
@@ -280,11 +290,13 @@ every 5 ticks:
         set {_slot} to 18
         loop {br_solo_2_queue::order::*}:
             set {_player} to loop-value-2
+            set {br_solo_2_all_ready} to true
             set {_head} to skull of {_player} named "&e%{_player}%"
             clear lore of {_head}
             if {br_solo_2_queue::inventories::%{_player}%::ready} is true:
                 add "&aGotowy" to lore of {_head}
             else:
+                set {br_solo_2_all_ready} to true
                 add "&8Nie gotowy" to lore of {_head}
             set slot {_slot} of {_inv} to {_head}
             add 1 to {_slot}
@@ -297,6 +309,15 @@ every 5 ticks:
                 set slot 1 of {_inv} to custom item with id "teserakt:forbid" with lore "&7Zbyt mało graczy (min. 3)"
             else:
                 set slot 1 of {_inv} to custom item with id "teserakt:ok" with lore "&7Zwycięstwa i porażki będą liczone"
+                
+    if {br_solo_2_queue::order::*} is set:
+        if size of {br_solo_2_queue::order::*} is more than 3:
+            if {br_solo_2_all_ready} is true:
+                clear {br_solo_2_players::*}
+                loop {br_solo_2_queue::inventories::*}:
+                    add loop-index-1 to {br_solo_2_players::*}
+                clear {br_solo_2_queue::inventories::*}
+                clear {br_solo_2_queue::order::*}
 
     loop {br_solo_menu::inventories::*}:
         set {_inv} to loop-value
@@ -322,7 +343,3 @@ every 5 ticks:
             set slot 12 of {_inv} to apple named "&bBR Solo (Mapa #2)" with lore {_status_text}
         else:
             set slot 12 of {_inv} to apple named "&bBR Solo (Mapa #2)" with lore {br_solo_2_status}
-
-
-
-
