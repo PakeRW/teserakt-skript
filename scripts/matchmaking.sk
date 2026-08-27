@@ -250,12 +250,14 @@ every 5 ticks:
         set {_slot} to 18
         loop {br_solo_1_queue::order::*}:
             set {_player} to loop-value-2
+            set {br_solo_1_all_ready} to true
             set {_head} to skull of {_player} named "&e%{_player}%"
             clear lore of {_head}
             if {br_solo_1_queue::inventories::%{_player}%::ready} is true:
                 add "&aGotowy" to lore of {_head}
             else:
                 add "&8Nie gotowy" to lore of {_head}
+                set {br_solo_1_all_ready} to false
             set slot {_slot} of {_inv} to {_head}
             add 1 to {_slot}
         if {br_solo_1_queue::inventories::%{_owner}%::ready} is true:
